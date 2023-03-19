@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "pig.h": "c",
+        "test_pig.h": "c"
+    }
+}
