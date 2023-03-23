@@ -132,7 +132,7 @@ int main()
             final_output[output_length] = '\0';
             printf("%s =>%s\n", copied_input, final_output);
             
-            //~copied_input
+			//~copied_input
             free(copied_input);
             //~final_output
             free(final_output);
@@ -146,13 +146,10 @@ int main()
     }
 }
 
-// A function to use scanf dynamically
+// A function to use scanf dynamically - this means there is no limit on
+// the input size.
 char *scand()
 {
-    static int j;
-    j++;
-    printf("count %i\n", j);
-
     char *input;
     if (!(input = malloc(1)))
     {
@@ -191,46 +188,4 @@ char *scand()
     }
 
     return input;
-
-    // while (scanf("%99[^\n]s", input))
-    //     {
-    //         if (input == "q")
-    //         {
-    //             exit(0);
-    //         }
-    //         /// Create copy of total_input (previous_input)
-
-    //         // Dynamically assign the user's input to the total_input char array.
-    //         input_provided = true;
-    //         //*previous_input
-    //         char *previous_input;
-    //         if (!(previous_input = malloc(strlen(total_input) + 1)))
-    //         {
-    //             printf("Out of memory\n");
-    //             exit(1);
-    //         }
-    //         strcpy(previous_input, total_input);
-
-    //         // Terminate previous_input to make it a valid string for str operations
-    //         previous_input[strlen(total_input)] = '\0';
-
-    //         // Update size
-    //         input_length = strlen(previous_input) + strlen(input);
-
-    //         // Concatenate the chars stored in the buffer into total_input
-    //         //*total_input
-    //         if (!(total_input = realloc(total_input, input_length + 1)))
-    //         {
-    //             printf("Out of memory\n");
-    //             exit(1);
-    //         }
-    //         strcpy(total_input, previous_input);
-    //         strcat(total_input, input);
-
-    //         // Terminate total_input to make it a valid string for str operations
-    //         total_input[strlen(total_input)] = '\0';
-
-    //         //~previous_input
-    //         free(previous_input);
-    //     }
 }

@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "pig.h": "c",
-        "test_pig.h": "c"
+        "test_pig.h": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "time.h": "c"
     }
 }
