@@ -1,0 +1,18 @@
+Shuffles = 1 => Average Quality = 0.800000
+Shuffles = 2 => Average Quality = 0.760000
+Shuffles = 3 => Average Quality = 0.720000
+Shuffles = 4 => Average Quality = 0.680000
+Shuffles = 5 => Average Quality = 0.680000
+Shuffles = 6 => Average Quality = 0.700000
+Shuffles = 7 => Average Quality = 0.660000
+Shuffles = 8 => Average Quality = 0.620000
+Shuffles = 9 => Average Quality = 0.680000
+Shuffles = 10 => Average Quality = 0.680000
+Shuffles = 11 => Average Quality = 0.660000
+Shuffles = 12 => Average Quality = 0.640000
+Shuffles = 13 => Average Quality = 0.640000
+Shuffles = 14 => Average Quality = 0.640000
+Shuffles = 15 => Average Quality = 0.640000
+
+The above results suggest that 9 is the optimal
+number of shuffles

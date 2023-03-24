@@ -209,10 +209,69 @@ int cmp_str(void *str_a, void *str_b)
 
 float quality(int *numbers, int len)
 {
+	int number_prev;
+	int number;
+	// Number of less than - greater than adjacencies
+	int num_lt_gt_adjacencies = 0;
 	
+	// Find number of lt_gt adjacencies  
+	for (int i = 1; i < len; i++)
+	{
+		number_prev = numbers[i-1];
+		number = numbers[i];
+		
+		if (number > number_prev)
+			num_lt_gt_adjacencies++;
+	}
+	
+	// Return the float division calculating quality
+	return (float)num_lt_gt_adjacencies / (float)len;
 }
 
 float average_quality(int N, int shuffles, int trials)
 {
+	int *array;
+	int *array_copy;
+	//*array
+	//*array_copy
+	// Attempt to malloc the array and work
+	if (!(array = malloc(N * sizeof(int))))
+	{
+		printf("Out of memory!");
+		exit(1);
+	}
+	if (!(array_copy = malloc(N * sizeof(int))))
+	{
+		printf("Out of memory!");
+		exit(1);
+	}
 	
+	// Populate the array
+	for (int i = 0; i < N; i++)
+	{
+		array[i] = i;
+	}
+	
+	float quality_sum = 0;
+	// Calculate the average `trials` times
+	for (int i = 0; i < trials; i++)
+	{
+		// As riffle edits the array, need to copy back into
+		// array_copy every iteration.
+		memcpy(array_copy, array, N * sizeof(int));
+		// Perform the riffle `shuffles` times
+		riffle(array_copy, N, sizeof(int), shuffles);
+		// Calculate quality of the output
+		quality_sum += quality((int *)array_copy, N);
+	}
+	
+	// Calculate average of the qualities
+	float average_quality = quality_sum / trials;
+	
+	//~array
+	//~array_copy
+	free(array);
+	free(array_copy);
+	
+	return average_quality;
 }
