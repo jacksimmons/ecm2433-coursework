@@ -4,6 +4,7 @@
         "test_pig.h": "c",
         "stdio.h": "c",
         "stdbool.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "type_traits": "c"
     }
 }
