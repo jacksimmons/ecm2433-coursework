@@ -2,15 +2,30 @@
 #include <stdlib.h>
 #include "beggar.h"
 
-const int JACK = 11;
-const int QUEEN = 12;
-const int KING = 13;
-const int ACE = 1;
+// Up to 65,536 players
+
+int main()
+{
+    int *deck;
+    
+    //*deck
+    if (!(deck = malloc(sizeof(int) * 52)))
+    {
+        printf("Out of memory!");
+        exit(1);
+    }
+    
+    for (int i = 0; i < 52; i++)
+        deck[i] = i;
+    
+    beggar(4, deck, 1);
+}
 
 int beggar(int Nplayers, int *deck, int talkative)
 {
     // Make the deck from 1-13, not 0-51
-    deck = get_cards(deck);
+    int *deck_normalised = get_cards(deck);
+    free(deck);
 
     int hand_size_remainder = 52 % Nplayers;
     int hand_size_quotient = 52 / Nplayers;
@@ -42,7 +57,6 @@ int beggar(int Nplayers, int *deck, int talkative)
             exit(1);
         }
         
-        //*player_hand
         int *player_hand;
         if (!(player_hand = malloc(sizeof(int) * hand_size_quotient)))
         {
@@ -52,23 +66,30 @@ int beggar(int Nplayers, int *deck, int talkative)
 
         for (int j = 0; j < hand_size_quotient; j++)
         {
-            player_hand[j] = deck[(i * hand_size_quotient + j)];
+            player_hand[j] = deck_normalised[(i * hand_size_quotient + j)];
         }
 
         player->hand = player_hand;
         player->hand_size = hand_size_quotient;
-
-        //~player_hand
-        free(player_hand);
+        
+        players[i] = player;
     }
 
-    // Put the rest of the cards on the starting pile
-    for (int i = 0; i < hand_size_remainder; i++)
+    // Initialise the pile, if there are remaining cards
+    int pile_size = hand_size_remainder;
+    if (!(pile->hand = malloc(sizeof(int) * pile_size)))
     {
-        pile->hand[i] = deck[51 - i];
+        printf("Out of memory!");
+        exit(1);
     }
-    pile->hand_size = hand_size_remainder;
-
+    
+    // Put the rest of the cards on the starting pile
+    for (int i = 0; i < pile_size; i++)
+    {
+        pile->hand[i] = deck_normalised[51 - i];
+    }
+    pile->hand_size = pile_size;
+    
     int finished = 0;
     while (!finished)
     {
@@ -76,7 +97,19 @@ int beggar(int Nplayers, int *deck, int talkative)
         {
             pile->hand_size = take_turn(players, i, Nplayers, pile);
         }
+        
+        // Up to 65,536 players
+        char name[6];
+        for (unsigned short i = 0; i < Nplayers; i++)
+        {
+            sprintf(name, "%i", i);
+            print_hand(name, players[i]);
+        }
+        print_hand("Pile", pile);
     }
+    
+    //~deck_normalised
+    free(deck_normalised);
 }
 
 int *get_cards(int *deck)
@@ -93,6 +126,8 @@ int *get_cards(int *deck)
     {
         cards[i] = get_card(deck[i]);
     }
+    
+    return cards;
 }
 
 // 0-12: Clubs
@@ -147,14 +182,24 @@ int get_penalty(int card)
 int take_turn(Hand **players, int current_player_index, int Nplayers, Hand *pile)
 {
     Hand *player = players[current_player_index];
-    int additional_cards = get_penalty(pile->hand[pile->hand_size-1]);
-
+    int additional_cards = 0;
+    
+    // If the pile isn't empty, check the last card for penalty
+    if (pile->hand_size > 0)
+    {
+        printf("%i\n", pile->hand_size);
+        additional_cards = get_penalty(pile->hand[(pile->hand_size)-1]);    
+    }
+    
     // Place card face down
     if (additional_cards == 0)
     {
         // Take from start
         int taken = take_card_from_hand(players[current_player_index]);
-        put_card_on_hand(pile, taken);
+        if (taken != -1)
+            put_card_on_hand(pile, taken);
+        else
+            printf("Player %i is out!\n", current_player_index);
     }
 
     // Last card was a penalty
@@ -176,13 +221,21 @@ int take_turn(Hand **players, int current_player_index, int Nplayers, Hand *pile
             if (players[0]->hand_size > 0)
             {
                 int taken = take_card_from_hand(players[current_player_index]);
-                if (get_penalty(taken) == 0)
+                if (taken != -1)
+                {
                     put_card_on_hand(pile, taken);
+                    if (get_penalty(taken) != 0)
+                        break;
+                }
                 else
-                    
+                {
+                    printf("Player %i is out!\n", current_player_index);
+                }
             }
         }
     }
+    
+    return pile->hand_size;
 }
 
 // Takes the card from the front of the player
@@ -218,14 +271,21 @@ void put_card_on_hand(Hand *hand, int card)
 {
     hand->hand_size++;
 
-    // Reallocate, adding one int to the hand
-    if (!(hand = realloc(hand, sizeof(int) * hand->hand_size)))
+    // Reallocate, adding one extra int to the hand
+    if (!(hand->hand = realloc(hand->hand, sizeof(int) * hand->hand_size)))
     {
         printf("Out of memory!");
         exit(1);
     }
+    hand->hand[(hand->hand_size) - 1] = card;
+}
 
-    hand->hand[hand->hand_size] = card;
+void print_hand(char *name, Hand *hand)
+{
+    printf("%s: ", name);
+    for (int i = 0; i < hand->hand_size - 1; i++)
+        printf("%i, ", hand->hand[i]);
+    printf("%i\n", hand->hand[hand->hand_size - 1]);
 }
 
 int finished(Hand *players, int Nplayers)
