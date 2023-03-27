@@ -3,8 +3,11 @@
 #include "beggar.h"
 #include "riffle.h"
 
+// Outputs whether the game is finished (1) or not (0)
 int finished(Hand **players, int Nplayers)
 {
+    // Iterate over every player, checking if they are NULL
+    // If every player bar one is NULL, the game is over.
     int num_nulls = 0;
     for (int i = 0; i < Nplayers; i++)
     {
@@ -17,19 +20,23 @@ int finished(Hand **players, int Nplayers)
     return 0;
 }
 
+// Handles a single game of beggar your neighbour.
 int single(int Nplayers, int talkative)
 {
+    // Ensure Nplayers is valid
 	if (Nplayers > 0 && Nplayers <= 52)
 	{	
 		int *deck;
 
-		//*deck
+        // Allocate memory for the deck of cards
+		//#deck
 		if (!(deck = malloc(sizeof(int) * 52)))
 		{
 			printf("Out of memory!");
 			exit(1);
 		}
 
+        // Populate the deck
 		for (int i = 0; i < 52; i++)
 			deck[i] = i;
 
@@ -38,8 +45,10 @@ int single(int Nplayers, int talkative)
 		//~deck
 		free(deck);
 
+        // Perform a riffle on the normalised deck
 		riffle(deck_normalised, 52, sizeof(int), 8);
 
+        // Handle beggar your neighbour on this deck
 		return beggar(Nplayers, deck_normalised, talkative);
 	}
 	else
@@ -49,17 +58,20 @@ int single(int Nplayers, int talkative)
 	}
 }
 
-
+// Normalises every card in the deck.
 int *get_cards(int *deck)
 {
     int *cards;
-    //*cards
+    
+    // Allocate memory for the normalised deck
+    //#cards
     if (!(cards = malloc(sizeof(int) * 52)))
     {
         printf("Out of memory!");
         exit(1);
     }
 
+    // Normalise each card
     for (int i = 0; i < 52; i++)
     {
         cards[i] = get_card(deck[i]);
@@ -68,10 +80,11 @@ int *get_cards(int *deck)
     return cards;
 }
 
-// 0-12: Clubs
-// 13-25: Diamonds
-// 26-38: Hearts
-// 39-51: Spades
+// Normalises a single card.
+// This means 0-12 => 1-13
+// 13-25 => 1-13
+// 26-38 => 1-13
+// 39-51 => 1-13
 int get_card(int number)
 { 
     if (number <= 12)
@@ -92,6 +105,7 @@ int get_card(int number)
     }
 }
 
+// Carries out the beggar your neighbour game.
 int beggar(int Nplayers, int *deck, int talkative)
 {
     // Get the remainder and quotient of the division 52 / Nplayers
@@ -99,20 +113,20 @@ int beggar(int Nplayers, int *deck, int talkative)
     int hand_size_quotient = 52 / Nplayers;
 
     // Create the array of pointers to the player hands
-    //*players
+    //#players
     Hand **players;
     if (!(players = malloc(sizeof(Hand *) * Nplayers)))
     {
-        printf("Out of memory!");
+        printf("[players:malloc] Out of memory!");
         exit(1);
     }
 
     // Create the pile which players will put their cards onto
-    //*pile
+    //#pile
     Hand *pile;
     if (!(pile = malloc(sizeof(Hand))))
     {
-        printf("Out of memory!");
+        printf("[pile:malloc] Out of memory!");
         exit(1);
     }
 
@@ -123,7 +137,7 @@ int beggar(int Nplayers, int *deck, int talkative)
         Hand *player;
         if (!(player = malloc(sizeof(Hand))))
         {
-            printf("Out of memory!");
+            printf("[player:malloc] Out of memory!");
             exit(1);
         }
         
@@ -131,7 +145,7 @@ int beggar(int Nplayers, int *deck, int talkative)
         int *player_hand;
         if (!(player_hand = malloc(sizeof(int) * hand_size_quotient)))
         {
-            printf("Out of memory!");
+            printf("[player_hand:malloc] Out of memory!");
             exit(1);
         }
 
@@ -153,7 +167,7 @@ int beggar(int Nplayers, int *deck, int talkative)
     int pile_size = hand_size_remainder;
     if (!(pile->hand = malloc(sizeof(int) * pile_size)))
     {
-        printf("Out of memory!");
+        printf("[pile->hand:malloc] Out of memory!");
         exit(1);
     }
     
@@ -184,10 +198,13 @@ int beggar(int Nplayers, int *deck, int talkative)
         printf("\n");
     }
     
-    while (1)
+    int game_over = 0;
+    while (!game_over)
     {
+        // Perform the turns of every player in order
         for (int i = 0; i < Nplayers; i++)
-        {                                    
+        {          
+            // Only perform turn if player is in the game
             if (players[i] != NULL)
             {
                 // Output turn number
@@ -195,12 +212,14 @@ int beggar(int Nplayers, int *deck, int talkative)
                     printf("Turn %i [Player %i]\n", turn_counter, i);
                 turn_counter++;
                 
+                // Predictive output for the next turn
                 if (talkative)
                 {
                     if (pile->hand_size == 0)
                     {
                         printf("\tPile is empty, so Player %i to put one card on the pile.\n", i);
                     
+                        // Distinguish input between having enough and not having enough cards here
                         int insufficient_cards = 0;
                         if (players[i]->hand_size == 0)
                             insufficient_cards = 1;
@@ -212,12 +231,16 @@ int beggar(int Nplayers, int *deck, int talkative)
                     }
                     else
                     {
+                        // Get penalty of the last card
                         int penalty = get_penalty(pile->hand[pile->hand_size-1]);
+                        
+                        // No penalty
                         if (penalty == 0)
                         {
                             printf("\tTop card in pile is %i, so Player %i to put one card on the pile.\n",
                             pile->hand[0], i);
                             
+                            // Distinguish between having enough cards and not
                             int insufficient_cards = 0;
                             if (players[i]->hand_size == 0)
                                 insufficient_cards = 1;
@@ -227,11 +250,14 @@ int beggar(int Nplayers, int *deck, int talkative)
                             else
                                 printf("\tPlayer %i attempts to put another card on the pile, but has no more.\n", i);
                         }
+                        
+                        // A penalty
                         else
                         {
                             printf("\tTop card in pile is %i [PENALTY], so Player %i to put %i card(s) on the pile.\n",
                             pile->hand[pile->hand_size-1], i, penalty);
                             
+                            // See which iteration depth to use (penalty, or player->hand_size)
                             int iteration_depth = penalty;
                             int insufficient_cards = 0;
                             if (penalty > players[i]->hand_size)
@@ -239,24 +265,42 @@ int beggar(int Nplayers, int *deck, int talkative)
                                 iteration_depth = players[i]->hand_size;
                                 insufficient_cards = 1;
                             }
-                            for (int j = 0; j < iteration_depth; j++)
-                            {
-                                if (get_penalty(players[i]->hand[j]) == 0)
-                                    printf("\tPlayer %i puts a %i on the pile.\n", i, players[i]->hand[j]);
-                                else
-                                {
-                                    printf("\tPlayer %i puts a %i [PENALTY] on the pile, passing the penalty on to Player %i.\n",
-                                    i, players[i]->hand[j], get_next_player(players, i, Nplayers));
-                                    break;
-                                }  
-                            }
                             
-                            if (insufficient_cards == 1)
-                                printf("\tPlayer %i has no more cards to pay the rest of their penalty.\n", i);
+                            int next_player = get_next_player(players, i, Nplayers);
+                            
+                            // As `next_player` can output -1, meaning the game is over, we need to check the game
+                            // hasn't ended.
+                            if (next_player != -1)
+                            {
+                                // Iterate over every card in the depth, and check if it's a penalty
+                                // If it is, display this and break.
+                                for (int j = 0; j < iteration_depth; j++)
+                                {
+                                    if (get_penalty(players[i]->hand[j]) == 0)
+                                        printf("\tPlayer %i puts a %i on the pile.\n", i, players[i]->hand[j]);
+                                    else
+                                    {
+                                        printf("\tPlayer %i puts a %i [PENALTY] on the pile, passing the penalty on to Player %i.\n",
+                                        i, players[i]->hand[j], next_player);
+                                        break;
+                                    }  
+                                }
+
+                                // Distinguish between having enough and not having enough cards
+                                if (insufficient_cards == 1)
+                                    printf("\tPlayer %i has no more cards to pay the rest of their penalty.\n", i);
+                            }
+                        
+                            else
+                            {
+                                printf("An unexpected end-of-game occurred.\n");
+                                exit(1);
+                            }
                         }
                     }
                 }
                 
+                // Take the turn, and handle the reward if there is one
                 Hand *reward = take_turn(players[i], pile);
                 
                 // If there is a reward to be claimed
@@ -268,19 +312,29 @@ int beggar(int Nplayers, int *deck, int talkative)
                     int penaliser_index = 
                         get_previous_player(players, i, Nplayers);
 
-                    // Need to store pile->hand_size elsewhere as we can't iterate
-                    // over a changing value.
-                    int pile_size = pile->hand_size;
-                    for (int i = 0; i < pile_size; i++)
+                    // Need to check there is a previous player; if not the game is over
+                    if (penaliser_index != -1)
                     {
-                        int taken = take_card_from_hand(pile);
-                        put_card_on_hand(players[penaliser_index], taken);
+                        // Need to store pile->hand_size elsewhere as we can't iterate
+                        // over a changing value.
+                        int pile_size = pile->hand_size;
+                        for (int i = 0; i < pile_size; i++)
+                        {
+                            int taken = take_card_from_hand(pile);
+                            put_card_on_hand(players[penaliser_index], taken);
+                        }
+
+                        if (talkative)
+                            printf("\tPlayer %i picks up the whole pile!\n", penaliser_index);
                     }
-                    
-                    if (talkative)
-                        printf("\tPlayer %i picks up the whole pile!\n", penaliser_index);
+                    else
+                    {
+                        printf("An unexpected end-of-game occurred.\n");
+                        exit(1);
+                    }
                 }
                 
+                // If the player has no more cards
                 if (players[i]->hand_size == 0)
                 {
                     if (talkative)
@@ -308,32 +362,47 @@ int beggar(int Nplayers, int *deck, int talkative)
                 }
                 printf("\n");
             }
-                                
+            
+            // Check if the game is over
             if (finished(players, Nplayers) == 1)
             {
+                // If the game is over, there must be a winner
                 int winner = -1;
                 for (int i = 0; i < Nplayers; i++)
                 {
                     if (players[i] != NULL)
                         winner = i;
                 }
-                if (talkative)
-                    printf("The game is over; Player %i wins!\n", winner);
                 
-                //~pile
-                free(pile->hand);
-                free(pile);
-                //~players
-                free(players[winner]->hand);
-                free(players[winner]);
-                free(players);
-
-                return turn_counter;
+                if (winner != -1)
+                {                
+                    if (talkative)
+                        printf("The game is over; Player %i wins!\n", winner);
+                    
+                    free(players[winner]->hand);
+                    free(players[winner]);
+                    game_over = 1;
+                    break;
+                }
+                else
+                {
+                    printf("The game has ended without a winner.\n");
+                    exit(1);
+                }
             }
         }
     }
+    
+    //~pile
+    free(pile->hand);
+    free(pile);
+    //~players
+    free(players);
+
+    return turn_counter;
 }
 
+// Get the number of cards needing to be paid as penalty due to `card`
 int get_penalty(int card)
 {
     int additional_cards = 0;
@@ -359,17 +428,31 @@ int get_penalty(int card)
     return additional_cards;
 }
 
+// Get the player before the current player in the `players` array
+// If the previous player is NULL, keep checking for the previous player,
+// until you reach the current player, meaning the current player has won.
 int get_previous_player(Hand **players, int current_player, int Nplayers)
 {
     if (current_player == -1)
-        return -1;
+    {
+        printf("NULL player provided to get_previous_player");
+        exit(1);
+    }
     
     int prev_player = -1;
     int explored_player = -1;
+    
+    // Set initial `explored_player` to 1 before `current_player` (wrapping
+    // around if necessary)
     if (current_player == 0)
         explored_player = Nplayers - 1;
     else
         explored_player = current_player - 1;
+    
+    // Until the `explored_player` matches `current_player` or the previous player
+    // has been found, keep going 'back',
+    // wrapping around to the end of the players array after going past the 0th
+    // player.
     do
     {
         if (players[explored_player] == NULL)
@@ -388,17 +471,30 @@ int get_previous_player(Hand **players, int current_player, int Nplayers)
     return prev_player;
 }
 
+// Get the player after the current player in the `players` array
+// If the next player is NULL, keep checking for the next player,
+// until you reach the current player, meaning the current player has won.
 int get_next_player(Hand **players, int current_player, int Nplayers)
 {
     if (current_player == -1)
-        return -1;
+    {
+        printf("NULL player provided to get_next_player");
+        exit(1);
+    }
     
     int next_player = -1;
     int explored_player = -1;
+    // Set initial `explored_player` to 1 after current_player, wrapping around
+    // if necessary.
     if (current_player == Nplayers - 1)
         explored_player = 0;
     else
         explored_player = current_player + 1;
+
+    // Until the `explored_player` matches `current_player`, or the next player has
+    // been found, keep going 'forward',
+    // wrapping around to the start of the players array after going past the (n-1)th
+    // player.
     do
     {
         if (players[explored_player] == NULL)
@@ -417,6 +513,7 @@ int get_next_player(Hand **players, int current_player, int Nplayers)
     return next_player;
 }
 
+// Handles a single turn of the beggar game.
 Hand *take_turn(Hand *player, Hand *pile)
 {
     int additional_cards = 0;
@@ -432,80 +529,55 @@ Hand *take_turn(Hand *player, Hand *pile)
         if (taken != -1)
         {
             put_card_on_hand(pile, taken);
-            //if (talkative)
-            //    printf("\tPlayer %i puts a %i on the pile.\n", current_player_index, taken);
-        }
-        else
-        {
-            //if (talkative)
-            //{
-            //    printf("\tPlayer %i attempts to put a card on the pile, but has none left!\n",
-            //           current_player_index);
-            //}
         }
         
         return NULL;
     }
+    // Otherwise, penalised move
     return take_penalty(player, pile, additional_cards);
 }
 
+// Handles a penalised move (the previous card was a penalty).
 Hand *take_penalty(Hand *player, Hand *pile, int additional_cards)
 {
     int talkative = 0;
+    
     // additional_cards != 0 also means pile size > 0.
     // No need to check if pile->hand_size > 0 here.
-    //if (talkative)
-    //{
-    //    printf("\tTop card in pile is %i [PENALTY], so Player %i to put %i card(s) on the pile.\n",
-    //           pile->hand[pile->hand_size-1], current_player_index, additional_cards);
-    //}
 
     int penalty_passed_on = 0;
+    // Iterate over the number of cards needing to be added, add that
+    // number of cards. If any are penalties, pass the penalty on to
+    // the next player.
     for (int i = 0; i < additional_cards; i++)
     {
         if (player->hand_size > 0)
         {
             int taken = take_card_from_hand(player);
+            // If a card was taken, put it on the pile
             if (taken != -1)
             {
                 put_card_on_hand(pile, taken);
+                // If the card was a penalty, indicate this and break
                 if (get_penalty(taken) != 0)
                 {
-                    // The index of the player who the penalty was passed on to
                     penalty_passed_on = 1;
-                    //if (talkative)
-                    //    printf("\tPlayer %i puts a %i [PENALTY] on the pile, therefore passing the penalty to Player %i.\n",
-                    //           current_player_index, taken, passed_on_to);
                     break;
                 }
-                else
-                {
-                    //if (talkative)
-                    //    printf("\tPlayer %i puts a %i on the pile.\n", current_player_index, taken);
-                }
             }
-            else
-            {
-                //printf("\tPlayer %i has no more cards, so cannot pay the penalty.\n", current_player_index);
-            }
-        }
-        else
-        {
-            //printf("\tPlayer %i has no cards, so cannot pay the penalty.\n", current_player_index);
         }
     }
 
+    // If the penalty wasn't passed on, the reward is pile
     if (penalty_passed_on == 0)
     {
-        //int penaliser_index = get_previous_player(players, current_player_index, Nplayers);
-        //printf("\tPlayer %i didn't play a penalty card during their penalty, so the whole pile goes to Player %i.\n",
-        //       current_player_index, penaliser_index); 
         return pile;
     }
+    // Otherwise, there is no reward
     return NULL;
 }
 
-// Takes the card from the front of the player
+// Takes the card from the front of the hand
 int take_card_from_hand(Hand *hand)
 {
     if (hand->hand_size > 0)
@@ -528,7 +600,7 @@ int take_card_from_hand(Hand *hand)
         // Reallocate, taking one off the hand
         if (!(hand->hand = realloc(hand->hand, mem_size)))
         {
-            printf("Out of memory!");
+            printf("[take_card_from_hand:realloc] Out of memory!");
             exit(1);
         }
 
@@ -539,6 +611,7 @@ int take_card_from_hand(Hand *hand)
     return -1;
 }
 
+// Puts a card on the back of the hand
 void put_card_on_hand(Hand *hand, int card)
 {
     hand->hand_size++;
@@ -546,18 +619,20 @@ void put_card_on_hand(Hand *hand, int card)
     // Reallocate, adding one extra int to the hand
     if (!(hand->hand = realloc(hand->hand, sizeof(int) * hand->hand_size)))
     {
-        printf("Out of memory!");
+        printf("[put_card_on_hand:realloc] Out of memory!");
         exit(1);
     }
     hand->hand[(hand->hand_size) - 1] = card;
 }
 
+// Outputs a hand to console neatly
 void print_hand(char *name, Hand *hand)
 {
     if (hand == NULL)
         printf("%s: [ELIMINATED]\n", name);
     else
     {
+        // Print the hand if it isn't empty
         if (hand->hand_size > 0)
         {
             printf("%s: ", name);

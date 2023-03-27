@@ -11,6 +11,7 @@ int main()
 	// Set the seed based on time
 	srand(time(NULL));
 	
+	// Create an array to store all 9 statistics
 	Lengths *all_stats[9];
 	for (int i = 2; i <= 10; i++)
 		all_stats[i-2] = statistics(i, 100);
@@ -25,7 +26,7 @@ int main()
 		exit(1);
 	}
 		
-	// Output the stats to file
+	// Output the stats to file, then free them
 	for (int i = 0; i < 9; i++)
 	{
 		Lengths *stats = all_stats[i];
@@ -37,6 +38,7 @@ int main()
 	fclose(f_ptr);
 }
 
+// Produces the statistics required for `Nplayers` players, over `games` games.
 Lengths *statistics(int Nplayers, int games)
 {	
 	int sum_turns = 0;
@@ -44,6 +46,7 @@ Lengths *statistics(int Nplayers, int games)
 	int longest = 0;
 	
 	Lengths *lengths;
+	// Allocate memory for the Lengths
 	if (!(lengths = malloc(sizeof(Lengths))))
 	{
 		printf("Out of memory!");
