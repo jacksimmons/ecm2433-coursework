@@ -13,9 +13,6 @@ void riffle_once(void *L, int len, int size, void *work)
 {
 	// Begin by populating work with L
 	memcpy(work, L, len * size);
-
-	// Set the seed based on time
-	srand(time(NULL));
 	
 	// First array is split_index and before
 	int split_index;

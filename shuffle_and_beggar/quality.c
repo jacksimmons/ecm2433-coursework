@@ -1,9 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "riffle.h"
 
 int main()
-{
+{	
+	// Set the seed based on time
+	srand(time(NULL));
+	
 	// Calculate the averages
 	float averages[15];
 	for (int i = 1; i <= 15; i++)

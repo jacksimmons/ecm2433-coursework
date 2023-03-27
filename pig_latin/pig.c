@@ -9,29 +9,34 @@ char *pig(char *word)
 {
     char *new_word;
     
-    //*word (as word = new_word later)
+    // Allocate sufficient memory for `new_word` (#new_word)
+    // strlen(word) + 1 gives the full length of the string word (incl. \0)
+    // + 3 gives space for the maximum number of additional characters (+way)
     if (!(new_word = malloc(strlen(word) + 4)))
     {
-        printf("Out of memory");
+        printf("[new_word:malloc] Out of memory");
         exit(1);
     }
 
-    char vowels_start[] = {'a', 'e', 'i', 'o', 'u'};
-    char vowels_end[] = {'a', 'e', 'i', 'o', 'u', 'y'};
+    // Characters which act as vowels when they are the first character
+    char vowels_head[] = {'a', 'e', 'i', 'o', 'u'};
+    
+    // Characters which act as vowels when they are not the first character
+    char vowels_tail[] = {'a', 'e', 'i', 'o', 'u', 'y'};
 
+    // Test for (2.); is the first character a vowel?
     bool first_is_vowel = false;
-    for (int i = 0; i < sizeof(vowels_start); i++)
+    for (int i = 0; i < sizeof(vowels_head); i++)
     {
-        if (word[0] == vowels_start[i])
+        if (word[0] == vowels_head[i])
         {
             first_is_vowel = true;
         }
     }
 
-    // Options 1-3 are handled below
     if (first_is_vowel)
     {
-        // Option 2.
+        // Option 2. `new_word` = `word` + "way"
         strcpy(new_word, word);
         strcat(new_word, "way");
     }
@@ -39,19 +44,26 @@ char *pig(char *word)
     {
         // Option 1.
 
-        // This will be defined, as an entire vowel-based word
-        // must begin with a vowel, hence this block won't enter
+        // Note: There must be a consonant, as `first_is_vowel` is false.
+        
+        // The index of the final consonant in the word
+        // i.e. the index directly before the first vowel,
+        // or length - 1.
         int final_consonant_index;
         bool final_consonant_index_found = false;
-
-        // Test with y acting as a vowel
-        for (int i = 0; i < strlen(word); i++)
+        
+        // Iterate through every character in the word, until a vowel is
+        // found, or the word ends. (Excluding the first character, as
+        // we have already determined this is a consonant)
+        for (int i = 1; i < strlen(word); i++)
         {
             if (!final_consonant_index_found)
             {
-                for (int j = 0; j < sizeof(vowels_end); j++)
+                // Iterate through every vowel to see if one matches the
+                // character in word.
+                for (int j = 0; j < sizeof(vowels_tail); j++)
                 {
-                    if (word[i] == vowels_end[j])
+                    if (word[i] == vowels_tail[j])
                     {
                         // The index just explored was a vowel;
                         // The last consonant was the i-1th element.
@@ -70,42 +82,46 @@ char *pig(char *word)
         if (!final_consonant_index_found)
             final_consonant_index = strlen(word) - 1;
 
-        // *1
+        // Allocate sufficient memory for `consonants` (#consonants)
         char *consonants;
-        // Need to malloc (final_consonant_index + 1) for the consonants,
-        // and then another byte for the null terminator.
+        // Need to malloc (`final_consonant_index` + 1) for the consonants up to and
+        // including `final_consonant_index`, + 1 byte for the null terminator.
         if (!(consonants = malloc(final_consonant_index + 2)))
         {
-            printf("Out of memory.\n");
+            printf("[consonants:malloc] Out of memory!\n");
             exit(1);
         }
 
-        // Copy the consonants into the consonants string
+        // Copy the consonants into `consonants`
         for (int i = 0; i < final_consonant_index + 1; i++)
         {
             consonants[i] = word[i];
         }
-        // Terminate the string
+        // Add null terminator to `consonants`
         consonants[final_consonant_index + 1] = '\0';
 
-        // Move the pointer along to the final consonant index
+        // Move the word pointer along to `final_consonant_index`
         word += final_consonant_index + 1;
 
-        // Copy the chars after the final consonant into new_word
-        // new_word now starts with the part after the final consonant
+        // Copy the chars after `final_consonant_index` into `new_word`
+        // `new_word` now starts with the part after the final consonant
         strcpy(new_word, word);
 
-        // Then concatenate the consonants onto new_word
+        // Now concatenate `consonants` after `new_word`
         strcat(new_word, consonants);
-        // *1
+        
+        // Deallocate memory for `consonants` (~consonants)
         free(consonants);
 
-        // Then add "ay"
-        strcat(&new_word[0], "ay");
+        // Finally, concatenate "ay" after `new_word`
+        strcat(new_word, "ay");
     }
 
-    // Terminate new_word
+    // Add null terminator to `new_word`
     new_word[strlen(new_word)] = '\0';
+    
+    // Point `word` to the same address as `new_word`
     word = new_word;
+    
     return word;
 }

@@ -1,0 +1,45 @@
+For 2 players:
+Shortest: 30
+Average: 197.470001
+Longest: 954
+
+For 3 players:
+Shortest: 37
+Average: 251.119995
+Longest: 814
+
+For 4 players:
+Shortest: 64
+Average: 253.690002
+Longest: 654
+
+For 5 players:
+Shortest: 50
+Average: 283.279999
+Longest: 1045
+
+For 6 players:
+Shortest: 68
+Average: 271.410004
+Longest: 950
+
+For 7 players:
+Shortest: 68
+Average: 274.149994
+Longest: 1016
+
+For 8 players:
+Shortest: 64
+Average: 278.989990
+Longest: 803
+
+For 9 players:
+Shortest: 80
+Average: 301.959991
+Longest: 744
+
+For 10 players:
+Shortest: 72
+Average: 281.200012
+Longest: 602
+
