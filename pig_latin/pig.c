@@ -5,6 +5,7 @@
 
 #include "pig.h"
 
+// The pig function, which converts `word` into pig latin and returns it.
 char *pig(char *word)
 {
     char *new_word;

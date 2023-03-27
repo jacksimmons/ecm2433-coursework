@@ -13,12 +13,15 @@ int main()
     // Iterate over all the words, and output the pig latin form for each
     for (int i = 0; i < 7; i++)
     {
+        // Create an array with enough space to hold any of the above words
         char word[11];
+        // Copy the ith word into `word`
         strcpy(word, words[i]);
         
         //#pig_word - malloc'd inside pig
         char* pig_word = pig(word);
         
+        // Output the conversion
         printf("%s => %s\n", words[i], pig_word);
         
         //~pig_word
