@@ -15,7 +15,7 @@ int main()
 	
 	// File access block
 	FILE *f_ptr;
-	f_ptr = fopen("shuffle.txt", "a");
+	f_ptr = fopen("shuffle.txt", "w");
 	
 	if (f_ptr == NULL)
 	{

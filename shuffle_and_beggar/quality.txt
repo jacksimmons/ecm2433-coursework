@@ -1,0 +1,21 @@
+Shuffles = 1 => Average Quality = 0.767333
+Shuffles = 2 => Average Quality = 0.637333
+Shuffles = 3 => Average Quality = 0.566000
+Shuffles = 4 => Average Quality = 0.524000
+Shuffles = 5 => Average Quality = 0.524000
+Shuffles = 6 => Average Quality = 0.500667
+Shuffles = 7 => Average Quality = 0.508000
+Shuffles = 8 => Average Quality = 0.490000
+Shuffles = 9 => Average Quality = 0.492000
+Shuffles = 10 => Average Quality = 0.492000
+Shuffles = 11 => Average Quality = 0.500000
+Shuffles = 12 => Average Quality = 0.483333
+Shuffles = 13 => Average Quality = 0.478000
+Shuffles = 14 => Average Quality = 0.488667
+Shuffles = 15 => Average Quality = 0.482667
+
+These results suggest that after 6 shuffles, any additional shuffles, generally,
+don't get any closer to quality = 0.5, therefore the optimal number of shuffles
+is 6.
+Also, after performing 10 runs of quality.c, I calculated that a shuffle number of
+6 has an (average) average quality of 0.5064, which is close to a perfect shuffle.
