@@ -25,10 +25,9 @@ gcc quality.c riffle.c -o quality
 (Then check shuffle.txt)
 
 To run a single beggar game (single.c), run the commands:
-gcc single.c beggar.c riffle.c -o single
-./single [NUMBER OF PLAYERS]
+make single
+./single
 
 To run the stats of the beggar game (byn.c), run the commands:
-gcc byn.c beggar.c riffle.c -o byn
+make byn
 ./byn
-(Then check statistics.txt)
